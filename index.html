@@ -2,474 +2,59 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Tiến độ ký PL HTGG 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTGG 2026 - Dashboard public</title>
 <style>
-  :root{
-    --bg:#f4f6f9; --panel:#fff; --ink:#1f2937; --sub:#6b7280; --border:#e5e7eb;
-    --c-tong:#2563eb; --c-dongy:#0d9488; --c-order:#7c3aed; --c-nhanpl:#d97706; --c-ky:#16a34a; --c-cn:#dc2626;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial, "Segoe UI", sans-serif;padding:24px;}
-  h1{font-size:22px;margin:0 0 4px;}
-  .subtitle{color:var(--sub);font-size:13px;margin-bottom:20px;}
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:18px;}
-  .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px;}
-  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;border-top:4px solid var(--c);}
-  .kpi .num{font-size:26px;font-weight:700;}
-  .kpi .lbl{font-size:12px;color:var(--sub);margin-top:2px;}
-  .kpi .pct{font-size:12px;color:var(--sub);}
-  .alert{background:#fdecec;border:1px solid #f5b5b5;border-left:5px solid var(--c-cn);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.5;}
-  .info{background:#eaf2fd;border:1px solid #bcd6f7;border-left:5px solid var(--c-tong);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.5;}
-  .alert b, .info b{display:block;margin-bottom:4px;}
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-  .panel h2{font-size:15px;margin:0 0 12px;}
-  table{border-collapse:collapse;width:100%;font-size:12.5px;}
-  th,td{border:1px solid var(--border);padding:6px 8px;text-align:center;}
-  th{background:#f0f3f8;cursor:pointer;user-select:none;white-space:nowrap;}
-  th.sortable:hover{background:#e2e8f4;}
-  td.left, th.left{text-align:left;}
-  tr.total-row{font-weight:700;background:#f7f9fc;}
-  tr.issue-row{background:#fdf1f1;}
-  .cbld-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:18px;}
-  .cbld-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-  .cbld-card .name{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
-  .badge{background:var(--c-cn);color:#fff;font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:700;}
-  .cbld-card .khus{font-size:12px;color:var(--sub);margin:4px 0 10px;}
-  .cbld-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
-  .cbld-stats div{text-align:center;}
-  .cbld-stats .n{font-size:16px;font-weight:700;}
-  .cbld-stats .l{font-size:10.5px;color:var(--sub);}
-  .progress-bar{height:8px;border-radius:6px;background:#e5e7eb;overflow:hidden;}
-  .progress-bar > div{height:100%;background:var(--c-ky);}
-  .cbld-table-wrap{margin-bottom:22px;}
-  .cbld-table-wrap h3{font-size:14px;margin:0 0 8px;}
-  .khu-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
-  .khu-chip{background:#eef2f8;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11.5px;}
-  .funnel-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;}
-  .funnel-row .flabel{width:150px;flex-shrink:0;color:var(--sub);}
-  .funnel-row .fbar-wrap{flex:1;background:#eef1f5;border-radius:4px;overflow:hidden;height:18px;}
-  .funnel-row .fbar{height:100%;}
-  .funnel-row .fval{width:70px;text-align:right;font-weight:700;}
-  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;}
-  .pill{border:1px solid var(--border);background:#f0f3f8;border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;}
-  .pill.active{background:var(--c-tong);color:#fff;border-color:var(--c-tong);}
-  select, input[type=text]{border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;font-family:Arial;}
-  input[type=text]{min-width:180px;}
-  .gh-table-wrap{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:6px;}
-  .gh-table-wrap table{table-layout:fixed;}
-  .gh-table-wrap th{position:sticky;top:0;z-index:2;}
-  colgroup col.c-khu{width:9%;} colgroup col.c-brand{width:16%;} colgroup col.c-vitri{width:11%;}
-  colgroup col.c-cskh{width:14%;} colgroup col.c-cbld{width:12%;} colgroup col.c-kq{width:11%;}
-  colgroup col.c-stage{width:17%;} colgroup col.c-note{width:10%;}
-  .gh-table-wrap td{white-space:normal;word-break:break-word;text-align:left;}
-  .stage-pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;}
-  footer{color:var(--sub);font-size:11.5px;text-align:center;margin-top:20px;}
-  .arrow{font-size:10px;opacity:.6;}
-  tr.low-perf-bad{background:#fdecec;}
-  tr.low-perf-warn{background:#fff8e6;}
-  .eval-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;}
-  .eval-bad{background:#dc2626;color:#fff;}
-  .eval-ok{background:#16a34a;color:#fff;}
+  :root{--bg:#f4f6f9;--panel:#fff;--ink:#1f2937;--sub:#6b7280;--line:#e5e7eb;--blue:#2563eb;--teal:#0d9488;--violet:#7c3aed;--orange:#d97706;--green:#16a34a;--red:#dc2626}
+  *{box-sizing:border-box} body{margin:0;padding:24px;font-family:Arial,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}
+  h1{margin:0 0 6px;font-size:24px} h2{font-size:16px;margin:0 0 10px} .sub{color:var(--sub);font-size:13px;margin-bottom:18px}
+  .grid{display:grid;gap:14px} .kpis{grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:16px} .two{grid-template-columns:1.1fr .9fr}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .kpi .v{font-size:28px;font-weight:700;line-height:1} .kpi .l,.kpi .p,.small{font-size:12px;color:var(--sub)} .kpi .l{margin-top:6px} .kpi .p{margin-top:4px}
+  ul{margin:8px 0 0 18px;padding:0} li{margin:6px 0} table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid var(--line);padding:8px 10px;vertical-align:top} th{background:#f8fafc;text-align:left} .num{text-align:right;white-space:nowrap}
+  .bars{display:grid;gap:8px;margin-top:10px} .bar{display:grid;grid-template-columns:120px 1fr 58px;gap:8px;align-items:center;font-size:12px} .track{height:10px;border-radius:999px;background:#e5e7eb;overflow:hidden} .fill{height:100%;border-radius:999px}
+  .note{background:#fff7ed;border:1px solid #fed7aa;border-left:5px solid var(--orange)} .alert{background:#fff1f2;border:1px solid #fecdd3;border-left:5px solid var(--red)} .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700}
+  footer{margin-top:18px;text-align:center;color:var(--sub);font-size:12px} @media (max-width:1100px){.kpis,.two{grid-template-columns:1fr} .bar{grid-template-columns:92px 1fr 46px}}
 </style>
 </head>
 <body>
-
-<h1>Dashboard Tiến độ ký Phụ lục HTGG 2026</h1>
-<div class="subtitle" id="subtitleLine">Nguồn: sheet "HTGG 2026" (dữ liệu case-level, không dùng sheet tổng hợp "TH 2026") · Cập nhật: —</div>
-
-<div class="kpi-row" id="kpiRow"></div>
-
-<div class="alert" id="alertBox"></div>
-<div class="info" id="infoBox"></div>
-
-<div class="two-col">
-  <div class="panel">
-    <h2>Phễu tiến độ toàn dự án</h2>
-    <div id="funnelChart"></div>
+  <h1>HTGG 2026 - Checklist tiến độ</h1>
+  <div class="sub">Bản public tự sinh từ Excel mới · cập nhật 17/08/2026 22:48 · nguồn: PL01_Chi tiet chinh sach HTGG de xuat trien khai (002).xlsx</div>
+  <div class="grid kpis" id="kpis"></div>
+  <div class="grid two">
+    <div class="card note">
+      <h2>Chốt ngắn cho CBLĐ</h2>
+      <div class="small">3 việc cần đẩy ngay:</div>
+      <ul>
+        <li>Khóa lịch ký theo ngày cho phần còn chậm, không để trôi sang kỳ sau.</li>
+        <li>Đẩy dứt điểm các hồ sơ đã đồng ý nhưng chưa hoàn tất ký / giảm công nợ.</li>
+        <li>Rà lại các dòng dữ liệu lệch trạng thái để báo cáo không bị sai số.</li>
+      </ul>
+    </div>
+    <div class="card"><h2>Phễu tiến độ</h2><div class="bars" id="bars"></div></div>
   </div>
-  <div class="panel">
-    <h2>Tiến độ theo Khu phố</h2>
-    <div id="khuChart"></div>
-  </div>
-</div>
-
-<div class="cbld-grid" id="cbldGrid"></div>
-
-<div class="panel">
-  <h2>CSKH có tỷ lệ chuyển đổi thấp / kém hiệu quả</h2>
-  <div class="subtitle" id="lowPerfSubtitle" style="margin-bottom:10px;"></div>
-  <table>
-    <thead>
-      <tr>
-        <th class="left">Xếp hạng</th><th class="left">CSKH</th><th class="left">CBLĐ</th>
-        <th>Tổng GH</th><th>Đồng ý</th><th>Ký PL</th>
-        <th>% Đồng ý/Tổng</th><th>% Ký/Đồng ý</th><th>% Ký/Tổng</th>
-        <th class="left">Đánh giá</th><th class="left">Nguyên nhân nghẽn (gợi ý)</th>
-      </tr>
-    </thead>
-    <tbody id="lowPerfTbody"></tbody>
-  </table>
-</div>
-
-<div id="cbldTables"></div>
-
-<div class="panel">
-  <h2>Tình trạng từng Gian hàng</h2>
-  <div class="filters" id="ghFilters"></div>
-  <div class="gh-table-wrap">
-    <table>
-      <colgroup>
-        <col class="c-khu"><col class="c-brand"><col class="c-vitri"><col class="c-cskh">
-        <col class="c-cbld"><col class="c-kq"><col class="c-stage"><col class="c-note">
-      </colgroup>
-      <thead>
-        <tr>
-          <th class="left">Khu phố</th><th class="left">Thương hiệu</th><th class="left">Vị trí</th>
-          <th class="left">CSKH</th><th class="left">CBLĐ</th><th class="left">Kết quả ĐP</th>
-          <th class="left">Trạng thái pipeline</th><th class="left">Ghi chú</th>
-        </tr>
-      </thead>
-      <tbody id="ghTbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<footer>Dữ liệu tính lại từ file PL01_Chi tiết chính sách HTGG (sheet "HTGG 2026") và DS CSKH.xlsx (sheet OCP). Dashboard tự chứa, không phụ thuộc mạng/CDN.</footer>
-
+  <div class="card" style="margin-top:14px"><h2>Theo CBLĐ</h2><table><thead><tr><th>CBLĐ</th><th>Khu</th><th class="num">Tổng</th><th class="num">Đồng ý</th><th class="num">Order</th><th class="num">Nhận PL</th><th class="num">Ký PL</th><th class="num">Giảm CN</th><th class="num">Ký/Tổng</th></tr></thead><tbody id="cbld"></tbody></table></div>
+  <div class="card" style="margin-top:14px"><h2>Theo CSKH</h2><table><thead><tr><th>CSKH</th><th>CBLĐ</th><th>Khu</th><th class="num">Tổng</th><th class="num">Đồng ý</th><th class="num">Order</th><th class="num">Nhận PL</th><th class="num">Ký PL</th><th class="num">Giảm CN</th><th class="num">Ký/Tổng</th></tr></thead><tbody id="cskh"></tbody></table></div>
+  <div class="card" style="margin-top:14px"><h2>Theo khu</h2><table><thead><tr><th>Khu</th><th class="num">Tổng</th><th class="num">Đồng ý</th><th class="num">Order</th><th class="num">Nhận PL</th><th class="num">Ký PL</th><th class="num">Giảm CN</th><th class="num">Ký/Tổng</th></tr></thead><tbody id="khu"></tbody></table></div>
+  <div class="card alert" style="margin-top:14px"><h2>Dữ liệu cần rà soát</h2><table><thead><tr><th>Nhóm</th><th>Trạng thái</th><th>Hành động</th></tr></thead><tbody id="issues"></tbody></table></div>
+  <footer>File này là đầu ra chính của workflow: Excel mới → cap_nhat_htgg_public.py → index.html.</footer>
 <script>
-const DATA = {"overall": {"tong": 178, "dongy": 172, "order": 160, "nhanpl": 147, "ky": 141, "cn": 123}, "overall_ky_tong": 0.7921348314606742, "overall_ky_dongy": 0.8197674418604651, "overall_dongy_tong": 0.9662921348314607, "khu_data": {"K-Town": {"tong": 97, "dongy": 97, "order": 97, "nhanpl": 94, "ky": 92, "cn": 91}, "The Venice": {"tong": 59, "dongy": 53, "order": 47, "nhanpl": 37, "ky": 34, "cn": 18}, "Center Point": {"tong": 7, "dongy": 7, "order": 5, "nhanpl": 5, "ky": 4, "cn": 3}, "Little HK": {"tong": 15, "dongy": 15, "order": 11, "nhanpl": 11, "ky": 11, "cn": 11}}, "cskh_rows": [{"cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "khu": ["K-Town"], "tong": 19, "dongy": 19, "order": 19, "nhanpl": 16, "ky": 14, "cn": 14, "notes": [], "dongy_tong": 1.0, "ky_tong": 0.7368421052631579, "ky_dongy": 0.7368421052631579, "cn_tong": 0.7368421052631579}, {"cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "khu": ["The Venice"], "tong": 32, "dongy": 29, "order": 23, "nhanpl": 20, "ky": 18, "cn": 13, "notes": [], "dongy_tong": 0.90625, "ky_tong": 0.5625, "ky_dongy": 0.6206896551724138, "cn_tong": 0.40625}, {"cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "khu": ["K-Town"], "tong": 55, "dongy": 55, "order": 55, "nhanpl": 55, "ky": 55, "cn": 54, "notes": [], "dongy_tong": 1.0, "ky_tong": 1.0, "ky_dongy": 1.0, "cn_tong": 0.9818181818181818}, {"cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "khu": ["The Venice"], "tong": 11, "dongy": 10, "order": 10, "nhanpl": 8, "ky": 7, "cn": 3, "notes": [], "dongy_tong": 0.9090909090909091, "ky_tong": 0.6363636363636364, "ky_dongy": 0.7, "cn_tong": 0.2727272727272727}, {"cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "khu": ["K-Town"], "tong": 23, "dongy": 23, "order": 23, "nhanpl": 23, "ky": 23, "cn": 23, "notes": [], "dongy_tong": 1.0, "ky_tong": 1.0, "ky_dongy": 1.0, "cn_tong": 1.0}, {"cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "khu": ["Center Point"], "tong": 7, "dongy": 7, "order": 5, "nhanpl": 5, "ky": 4, "cn": 3, "notes": [], "dongy_tong": 1.0, "ky_tong": 0.5714285714285714, "ky_dongy": 0.5714285714285714, "cn_tong": 0.42857142857142855}, {"cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "khu": ["Little HK"], "tong": 15, "dongy": 15, "order": 11, "nhanpl": 11, "ky": 11, "cn": 11, "notes": [], "dongy_tong": 1.0, "ky_tong": 0.7333333333333333, "ky_dongy": 0.7333333333333333, "cn_tong": 0.7333333333333333}, {"cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "khu": ["The Venice"], "tong": 16, "dongy": 14, "order": 14, "nhanpl": 9, "ky": 9, "cn": 2, "notes": [], "dongy_tong": 0.875, "ky_tong": 0.5625, "ky_dongy": 0.6428571428571429, "cn_tong": 0.125}], "cbld_summary": [{"cbld": "Trần Đăng Nam", "khu": ["Center Point", "K-Town", "Little HK"], "n_cskh": 5, "has_issue": false, "tong": 119, "dongy": 119, "order": 113, "nhanpl": 110, "ky": 107, "cn": 105, "khu_strip": [{"khu": "Center Point", "n_cskh": 1, "tong": 7, "dongy": 7, "order": 5, "nhanpl": 5, "ky": 4, "cn": 3}, {"khu": "K-Town", "n_cskh": 3, "tong": 97, "dongy": 97, "order": 97, "nhanpl": 94, "ky": 92, "cn": 91}, {"khu": "Little HK", "n_cskh": 1, "tong": 15, "dongy": 15, "order": 11, "nhanpl": 11, "ky": 11, "cn": 11}]}, {"cbld": "Chu Thị Hoài Phương", "khu": ["The Venice"], "n_cskh": 3, "has_issue": false, "tong": 59, "dongy": 53, "order": 47, "nhanpl": 37, "ky": 34, "cn": 18, "khu_strip": [{"khu": "The Venice", "n_cskh": 3, "tong": 59, "dongy": 53, "order": 47, "nhanpl": 37, "ky": 34, "cn": 18}]}], "gh_list": [{"khu": "K-Town", "brand": "Nhà dưỡng lão Diên Hồng", "vitri": "SH.KT-02", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Nhà dưỡng lão Diên Hồng", "vitri": "SH.KT-03", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Nét Huế", "vitri": "PT2.TV-121", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Nét Huế", "vitri": "PT2.TV-123", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Adidas Outlet", "vitri": "PT2.TV-171", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 1, "stageLabel": "Đã đồng ý", "excluded": false, "note": null, "lydo": "Chưa ký HĐ CĐPN => chưa order được PL HTGG"}, {"khu": "The Venice", "brand": "Adidas Outlet", "vitri": "PT2.TV-173", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 1, "stageLabel": "Đã đồng ý", "excluded": false, "note": null, "lydo": "Chưa ký HĐ CĐPN => chưa order được PL HTGG"}, {"khu": "The Venice", "brand": "Adidas Outlet", "vitri": "PT2.TV-175", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 1, "stageLabel": "Đã đồng ý", "excluded": false, "note": null, "lydo": "Chưa ký HĐ CĐPN => chưa order được PL HTGG"}, {"khu": "The Venice", "brand": "Adidas Outlet", "vitri": "PT2.TV-177", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 1, "stageLabel": "Đã đồng ý", "excluded": false, "note": null, "lydo": "Chưa ký HĐ CĐPN => chưa order được PL HTGG"}, {"khu": "K-Town", "brand": "Sea Beer", "vitri": "ĐLSH.KT-31", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sea Beer", "vitri": "ĐLSH.KT-32", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sea Beer", "vitri": "ĐLSH.KT-33", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sea Beer", "vitri": "ĐLSH.KT-34", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Highlands Coffee", "vitri": "ĐLBM.TV-02", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 4, "stageLabel": "Đã nhận PL từ KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Phở Lý Quốc Sư", "vitri": "ĐLSH.KT-12", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Năm Dê Ninh Bình", "vitri": "PT1.TV-114", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Năm Dê Ninh Bình", "vitri": "PT1.TV-116", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Quán nhậu tự do", "vitri": "PT2.TV-02", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Photo Palette", "vitri": "PĐ3.KT-27", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sea Beer", "vitri": "ĐLSH.KT-35", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sea Beer", "vitri": "ĐLSH.KT-36", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sea Beer", "vitri": "ĐLSH.KT-37", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Center Point", "brand": "Nguyên Đức Market", "vitri": "ĐĐD.SP21-07", "cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Thom Bell", "vitri": "PĐ.KT-66", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Phở Thìn 13 Lò Đúc", "vitri": "ĐLSH.KT-10", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Phở Thìn 13 Lò Đúc", "vitri": "ĐLSH.KT-11", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Phở Lý Quốc Sư", "vitri": "ĐLSH.KT-13", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Nem nướng Hoa Béo", "vitri": "ĐLSH.KT-14", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Miho Spa", "vitri": "ĐLSH.KT-21", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Center Point", "brand": "PSV", "vitri": "ĐLNT.SP21-25", "cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 4, "stageLabel": "Đã nhận PL từ KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "Center Point", "brand": "Since 1993 Billiard", "vitri": "CL15.SP23-01", "cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "Center Point", "brand": "Chao Gogi", "vitri": "ĐĐD.SP14-08", "cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "ketqua": "Không đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": "Chưa liên hệ được KH, đã gọi nhiều lần, nhắn tin mời gặp trao đổi nhưng KH chưa đến, cskh nt hẹn lại lịch ngày 21/7, KH chưa phản hồi (cập nhật ngày 21/07)"}, {"khu": "Center Point", "brand": "Gà Tươi Mạnh Hoạnh", "vitri": "ĐLNT.SP14-02", "cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Center Point", "brand": "Trầm hương Anh Tuấn", "vitri": "ĐLNT.SP23-05", "cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "ketqua": "Không đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": "KH không đồng ý do tình hình KD tại GH kém, một mình GH nằm tại dãy ĐLNT.SP23, xung quanh trống khách thuê, và KH đã tìm được mặt bằng thuê khác tại OCP1 giá tốt hơn"}, {"khu": "The Venice", "brand": "Khoái Restaurant", "vitri": "PT2.TV-151", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Onsen Coffee", "vitri": "PT2.TV-127", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 4, "stageLabel": "Đã nhận PL từ KSHĐ", "excluded": false, "note": null, "lydo": "Push xác nhận 23/7 => Hạn 25/7 order"}, {"khu": "The Venice", "brand": "Thế giới Cà phê Trung Nguyên", "vitri": "PT2.TV-101", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": "23/7 mới xác nhận"}, {"khu": "The Venice", "brand": "Fagoli Coffee", "vitri": "PT2.TV-117", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Không đồng ý", "stage": 0, "stageLabel": "Chưa đồng ý/đang xử lý", "excluded": false, "note": null, "lydo": "Không áp dụng/ Có khách backup"}, {"khu": "The Venice", "brand": "Áo Dài Minh Hạnh", "vitri": "VTĐ8.TV-87", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Thom Bell", "vitri": "PĐ.KT-67", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Galaxy coffee", "vitri": "ĐLSH.KT-02", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Bánh tráng Hoàng Bèo", "vitri": "ĐLSH.KT-08", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Moc Minh Decorate", "vitri": "ĐLSH.KT-15", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Hispeed", "vitri": "ĐLSH.KT-17", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Mai Flowers", "vitri": "ĐLSH.KT-22", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Mini K", "vitri": "ĐLSH.KT-23", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lẩu gà lá é Đà Lạt", "vitri": "PĐ6.KT-01", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "Nhà hàng ẩm thực Bắc Trung Nam", "vitri": "SH8A.SP9-32", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "DIM DIM SUM & DAL VOSTRO HOTEL", "vitri": "SH8A.SP9-46", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "Cao Gia Trang", "vitri": "SH8B.SP9-05", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "Cao Gia Trang", "vitri": "SH8B.SP9-07", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "Đệ Nhất Quán", "vitri": "SH8B.SP9-14", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "Đệ Nhất Quán", "vitri": "SH8B.SP9-16", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "X Pet", "vitri": "PT1.TV-156", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": "Đang trình ký đóng dấu HĐT => order PL HTGG"}, {"khu": "The Venice", "brand": "Louis Castel", "vitri": "PT2.TV-165", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Không đồng ý", "stage": 0, "stageLabel": "Chưa đồng ý/đang xử lý", "excluded": false, "note": null, "lydo": "Đã thanh lý"}, {"khu": "K-Town", "brand": "Lẩu nướng không khói Hàn Quốc Tươi BBQ", "vitri": "PĐ.KT-06", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sarang oh Sarang", "vitri": "PĐ.KT-10", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Son Coffee", "vitri": "PĐ.KT-12", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Kim Ngân Spa + Đại lý phân phố chăn ga gối đệm Kim Cương", "vitri": "PĐ.KT-15", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Heaven Coffee", "vitri": "PĐ.KT-16", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Heaven Coffee", "vitri": "PĐ.KT-17", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "HH-Seoul BBQ", "vitri": "PĐ.KT-18", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Mi Home", "vitri": "PĐ.KT-28", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Góc Coffee & tea", "vitri": "PĐ1.KT-01", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Han Cook Dê Đức Trung", "vitri": "PĐ1.KT-07", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Chicken Plus 0515", "vitri": "PĐ2.KT-01", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Trà chanh giã tay chị đẹp - 아름다운 레몬차", "vitri": "PĐ2.KT-03", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Trà chanh giã tay chị đẹp - 아름다운 레몬차", "vitri": "PĐ2.KT-05", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Hasa Tasa", "vitri": "PĐ2.KT-33", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Time Coffee", "vitri": "PĐ3.KT-04", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Chè Sầu Liên Đà Nẵng", "vitri": "PĐ3.KT-08", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lucita", "vitri": "PĐ3.KT-10", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Tiệm trà chị đẹp", "vitri": "PĐ3.KT-14", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Tiệm nhà Jin", "vitri": "PĐ3.KT-15", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lalaland Studio", "vitri": "PĐ3.KT-19", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Dual brain", "vitri": "PĐ3.KT-25", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Tteokbokki, Chicken & Korean Food", "vitri": "PĐ3.KT-26", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Cơm thố", "vitri": "PĐ3.KT-28", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Korea Bingsu", "vitri": "PĐ3.KT-30", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Minsung Bio", "vitri": "PĐ4.KT-02", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Kenso by Kim - Premium Hanbok", "vitri": "PĐ4.KT-11", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lala Land", "vitri": "PĐ4.KT-15", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lunaria House", "vitri": "PĐ6.KT-07", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Massage King - Massage Xông Hơi Trị Liệu", "vitri": "PĐ6.KT-22", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lẩu bò nhúng dấm A86", "vitri": "PĐ7.KT-01", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 4, "stageLabel": "Đã nhận PL từ KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Cao Phương Viện", "vitri": "PĐ7.KT-02", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lotus Deli Sky Tea", "vitri": "PĐ7.KT-05", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Giặt là Sunshine", "vitri": "PĐ7.KT-07", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sumi Spa", "vitri": "PĐ7.KT-09", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Brownie Fantasy", "vitri": "PĐ8.KT-02", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Sinh Từ Quán (가게에서 태어난)", "vitri": "SH1.KT-01", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Asian Food Market", "vitri": "SH1.KT-03", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Asian Food Market", "vitri": "SH1.KT-04", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Asian Food Market", "vitri": "SH1.KT-05", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Korean Fashion", "vitri": "SH1.KT-06", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Terminal Bun", "vitri": "SH1.KT-10", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "K Town Spa Cosmetic", "vitri": "SH1.KT-11", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Tocotoco", "vitri": "SH1.KT-12", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Rose coffee", "vitri": "SH1.KT-13", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Seoulful Seoul", "vitri": "SH1.KT-18", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Nhà hàng Green-Green Restaurant", "vitri": "SH1.KT-20", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "D'Lộc Coffee and Restaurant", "vitri": "SH1.KT-21", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Nhà hàng San Hô", "vitri": "SH1.KT-22", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Nhà hàng San Hô", "vitri": "SH1.KT-23", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Ami Coffee", "vitri": "SH1.KT-24", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Coffee Draft Beer", "vitri": "SH1.KT-26", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "QK Auto", "vitri": "SH1.KT-30", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Kangnam Beauty & Spa", "vitri": "SH1.KT-31", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Ting Ting", "vitri": "ĐLSH.KT-25", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "Nhà hàng ẩm thực Bắc Trung Nam", "vitri": "SH8A.SP9-34", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "DIM DIM SUM & DAL VOSTRO HOTEL", "vitri": "SH8A.SP9-48", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "DIM DIM SUM & DAL VOSTRO HOTEL", "vitri": "SH8A.SP9-50", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "DIM DIM SUM & DAL VOSTRO HOTEL", "vitri": "SH8A.SP9-52", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Little HK", "brand": "DIM DIM SUM & DAL VOSTRO HOTEL", "vitri": "SH8A.SP9-54", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "Center Point", "brand": "Trầm hương - Đá quý MỘC YẾN HƯƠNG", "vitri": "ĐD1.SP21-01", "cskh": "Nguyễn Thị Hồng Anh", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Tươi Hotpot", "vitri": "PB19.TV-13", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Tươi Hotpot", "vitri": "PB19.TV-15", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Nem nướng Yuki", "vitri": "PB19.TV-19", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Lug.vn", "vitri": "PT.TV-138", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "HOAN TT", "vitri": "PT.TV-166", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Changhi chè ngon sáng tạo", "vitri": "PT.TV-48", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Phở Thịnh", "vitri": "PT1.TV-138", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Long Wang", "vitri": "PT1.TV-14", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Long Wang", "vitri": "PT1.TV-16", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "V-mart", "vitri": "PT1.TV-166", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Xưởng Trà", "vitri": "PT1.TV-178", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Ẩm thực phố tây", "vitri": "PT1.TV-182", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Ẩm thực phố tây", "vitri": "PT1.TV-184", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Siêu thị tiện ích Minh Châu", "vitri": "PT1.TV-196", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Fresh food", "vitri": "PT1.TV-94", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": "Order bổ sung 23/7"}, {"khu": "The Venice", "brand": "Hải sản đồ sơn", "vitri": "PT2.TV-06", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Không đồng ý", "stage": 0, "stageLabel": "Chưa đồng ý/đang xử lý", "excluded": false, "note": null, "lydo": "Yêu cầu chỉ đóng 50tr công nợ thuê 6 tháng 2026 rồi xin xóa nợ mới kỳ PL HTGG mới"}, {"khu": "The Venice", "brand": "Thế giới Cà phê Trung Nguyên", "vitri": "PT2.TV-103", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": "23/7 mới xác nhận"}, {"khu": "The Venice", "brand": "T's K-Food", "vitri": "PT2.TV-13", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Diamond BBQ", "vitri": "PT2.TV-149", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": "23/7 mới xác nhận"}, {"khu": "The Venice", "brand": "T's K-Food", "vitri": "PT2.TV-15", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Mê cung nhà gương", "vitri": "PT2.TV-155", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Mê cung nhà gương", "vitri": "PT2.TV-157", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Bee Stock", "vitri": "PT2.TV-163", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Mây Bistro", "vitri": "PT2.TV-169", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": "Push xác nhận 23/7 => Hạn 25/7 order"}, {"khu": "The Venice", "brand": "Thời trang Ecochic", "vitri": "PT2.TV-189", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 4, "stageLabel": "Đã nhận PL từ KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Trái cây hạnh phúc", "vitri": "PT2.TV-41", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": "x"}, {"khu": "Little HK", "brand": "Diệu Liên Hương", "vitri": "SH8.SP9-14", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Không đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": "KH đang hưởng chính sách miễn phí tiền thuê đến Tháng 10/2026 tuy nhiên không thể tiếp tục hoạt động kinh doanh, không có khả năng đóng PDV => GH xin thanh lý end ro từ 30/6/2026"}, {"khu": "Little HK", "brand": "Diệu Liên Hương", "vitri": "SH8.SP9-15", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Không đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": "KH đang hưởng chính sách miễn phí tiền thuê đến Tháng 10/2026 tuy nhiên không thể tiếp tục hoạt động kinh doanh, không có khả năng đóng PDV => GH xin thanh lý end ro từ 30/6/2026"}, {"khu": "Little HK", "brand": "Diệu Liên Hương", "vitri": "SH8.SP9-16", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Không đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": "KH đang hưởng chính sách miễn phí tiền thuê đến Tháng 10/2026 tuy nhiên không thể tiếp tục hoạt động kinh doanh, không có khả năng đóng PDV => GH xin thanh lý end ro từ 30/6/2026"}, {"khu": "Little HK", "brand": "Bỉ Ngạn Viên", "vitri": "SH8A.SP9-38", "cskh": "Nguyễn Minh Trang", "cbld": "Trần Đăng Nam", "ketqua": "Không đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": "KH không sắp xếp được người vận hành không thể tiếp tục hoạt động kinh doanh => Xin thanh lý end ro từ 30/06/2026"}, {"khu": "K-Town", "brand": "Doris Book & Tea", "vitri": "SH1.KT-07", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lotteria", "vitri": "PĐ.KT-40", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Bonchon", "vitri": "PĐ.KT-38", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "La la pizza & steak", "vitri": "PĐ.KT-02", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Si Concept", "vitri": "PĐ.KT-20", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "D'amis Coffee", "vitri": "PT.TV-13", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": "Push xác nhận 23/7 => Hạn 25/7 order"}, {"khu": "The Venice", "brand": "Kombo", "vitri": "PT2.TV-69", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 3, "stageLabel": "Đã gửi Order KSHĐ", "excluded": false, "note": null, "lydo": "x"}, {"khu": "The Venice", "brand": "Bò Tơ Quán Mộc", "vitri": "PT1.TV-08", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": "x"}, {"khu": "The Venice", "brand": "Bò Tơ Quán Mộc", "vitri": "PT1.TV-10", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": "x"}, {"khu": "The Venice", "brand": "Bò Tơ Quán Mộc", "vitri": "PT2.TV-07", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": "x"}, {"khu": "K-Town", "brand": "Rohome", "vitri": "PĐ4.KT-01", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Lẩu dê Nhất Ly", "vitri": "PĐ6.KT-02", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Tixu 19", "vitri": "PĐ3.KT-11", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Eldavie", "vitri": "ĐLSH.KT-24", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Bonchon", "vitri": "PĐ.KT-39", "cskh": "Võ Thị Nga", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Bingxue Tea & Ice Cream", "vitri": "PĐ5.KT-22", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "CURRY , CAFE & COCKTAIL", "vitri": "PĐ.KT-50", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Mangoo's", "vitri": "PĐ.KT-61", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Cộng cà phê", "vitri": "PĐ.KT-23", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Pickk", "vitri": "PĐ.KT-24", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Bingo", "vitri": "PĐ.KT-54", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 4, "stageLabel": "Đã nhận PL từ KSHĐ", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "An cà phê", "vitri": "PĐ.KT-64", "cskh": "Phạm Thị Ngọc Duyên", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "K-Town", "brand": "Korean Food", "vitri": "PĐ.KT-22", "cskh": "Bùi Mạnh Hùng", "cbld": "Trần Đăng Nam", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Vua Cá Lăng", "vitri": "PT2.TV-40", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Pierre Cardin Shoes", "vitri": "PT.TV-94", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Pierre Cardin Shoes", "vitri": "PT.TV-96", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Lẩu Cua Đồng", "vitri": "PT.TV-42", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Không đồng ý", "stage": 0, "stageLabel": "Chưa đồng ý/đang xử lý", "excluded": false, "note": null, "lydo": "Đã thanh lý"}, {"khu": "The Venice", "brand": "Lẩu Cua Đồng", "vitri": "PT.TV-44", "cskh": "Vũ Thị Thu Yến", "cbld": "Chu Thị Hoài Phương", "ketqua": "Không đồng ý", "stage": 0, "stageLabel": "Chưa đồng ý/đang xử lý", "excluded": false, "note": null, "lydo": "Đã thanh lý"}, {"khu": "The Venice", "brand": "Bing Chun", "vitri": "PT2.TV-08", "cskh": "Nguyễn Thị Quỳnh Hoa", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 2, "stageLabel": "Đã ký BBLV", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Café De Măng Đen", "vitri": "ĐLBM.TV-16", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Café De Măng Đen", "vitri": "ĐLBM.TV-18", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 6, "stageLabel": "Đã giảm công nợ - Hoàn thành", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Lock&Lock", "vitri": "PT.TV-106", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Không đồng ý", "stage": 0, "stageLabel": "Chưa đồng ý/đang xử lý", "excluded": false, "note": null, "lydo": "Đã thanh lý"}, {"khu": "The Venice", "brand": "Nhà sách Tân Việt", "vitri": "PT.TV-112", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}, {"khu": "The Venice", "brand": "Nhà sách Tân Việt", "vitri": "PT.TV-114", "cskh": "Đỗ Xuân Nhật Anh", "cbld": "Chu Thị Hoài Phương", "ketqua": "Đồng ý", "stage": 5, "stageLabel": "Đã hoàn thành ký PL", "excluded": false, "note": null, "lydo": null}], "excluded_count": 0, "total_rows": 178, "funnel_violations": [], "cskh_case_fixes": [{"from": "Nguyễn THị Quỳnh Hoa", "to": "Nguyễn Thị Quỳnh Hoa"}], "ketqua_typo_fixes": [], "cbld_warnings": [], "updated": "15/08/2026"};
-
-const STAGE_COLORS = ['#dc2626','#f59e0b','#eab308','#7c3aed','#d97706','#16a34a','#0d9488'];
-// stage 0..6 custom mapping per spec accents:
-const STAGE_COLOR_MAP = {0:'#9ca3af',1:'#0d9488',2:'#0891b2',3:'#7c3aed',4:'#d97706',5:'#16a34a',6:'#15803d'};
-
-function fmtPct(n, d){ return d>0 ? Math.round(n/d*100)+'%' : '0%'; }
-
-function renderSubtitle(){
-  document.getElementById('subtitleLine').innerHTML =
-    'Nguồn: sheet "HTGG 2026" (dữ liệu case-level, không dùng sheet tổng hợp "TH 2026") · Cập nhật: ' + DATA.updated;
-}
-
-function renderKPI(){
-  const o = DATA.overall;
-  const stages = [
-    {key:'tong', label:'Tổng GH cần đàm phán', color:'var(--c-tong)', val:o.tong, pct:null},
-    {key:'dongy', label:'Đã đồng ý', color:'var(--c-dongy)', val:o.dongy, pct:fmtPct(o.dongy,o.tong)},
-    {key:'order', label:'Đã gửi Order KSHĐ', color:'var(--c-order)', val:o.order, pct:fmtPct(o.order,o.tong)},
-    {key:'nhanpl', label:'Đã nhận PL từ KSHĐ', color:'var(--c-nhanpl)', val:o.nhanpl, pct:fmtPct(o.nhanpl,o.tong)},
-    {key:'ky', label:'Đã hoàn thành ký PL', color:'var(--c-ky)', val:o.ky, pct:fmtPct(o.ky,o.tong)},
-    {key:'cn', label:'Đã giảm công nợ', color:'var(--c-cn)', val:o.cn, pct:fmtPct(o.cn,o.tong)},
-  ];
-  const html = stages.map(s => `
-    <div class="kpi" style="--c:${s.color}">
-      <div class="num">${s.val}</div>
-      <div class="lbl">${s.label}</div>
-      ${s.pct !== null ? `<div class="pct">${s.pct} / tổng</div>` : ''}
-    </div>`).join('');
-  document.getElementById('kpiRow').innerHTML = html;
-}
-
-function renderAlertInfo(){
-  const o = DATA.overall;
-  // find biggest bottleneck: cskh with lowest ky% among those with tong>=10, and any data-gap notes
-  let worst = null;
-  DATA.cskh_rows.forEach(c=>{
-    const pct = c.tong>0 ? c.ky/c.tong : 0;
-    if(!worst || pct < worst.pct){ worst = {cskh:c.cskh, cbld:c.cbld, pct, tong:c.tong, ky:c.ky}; }
-  });
-  const gapNotes = [];
-  DATA.cskh_rows.forEach(c=>{ c.notes.forEach(n=> gapNotes.push(`${c.cskh} (${c.cbld}) — ${n}`)); });
-
-  const alertHtml = `<b>Điểm nghẽn nổi bật</b>
-    CSKH <b>${worst.cskh}</b> (CBLĐ ${worst.cbld}) có tỷ lệ hoàn thành ký PL thấp nhất: chỉ ${worst.ky}/${worst.tong} GH (${Math.round(worst.pct*100)}%) đã ký PL.
-    ${gapNotes.length ? ' Ngoài ra còn ' + gapNotes.length + ' gian hàng thiếu dữ liệu cần CSKH bổ sung: ' + gapNotes.join('; ') + '.' : ''}`;
-  document.getElementById('alertBox').innerHTML = alertHtml;
-
-  const infoHtml = `<b>Ghi chú làm sạch dữ liệu</b>
-    Tính lại 100% từ sheet "HTGG 2026" (case-level), không dùng sheet tổng hợp thủ công "TH 2026".
-    Cột "Kết quả đàm phán" là căn cứ định nghĩa "Đồng ý" (không dùng cột "Đã ký BBLV").
-    Đã chuẩn hoá 1 lỗi chính tả CSKH và 1 lỗi chính tả "Đồngy" → "Đồng ý" (mã lô PT2.TV-177).
-    Không có gian hàng nào bị loại theo diện "Không xuất PL HTGG" trong lần cập nhật này.`;
-  document.getElementById('infoBox').innerHTML = infoHtml;
-}
-
-function renderFunnel(){
-  const o = DATA.overall;
-  const steps = [
-    {label:'Tổng GH', val:o.tong, color:STAGE_COLOR_MAP[0-0], c:'var(--c-tong)'},
-    {label:'Đồng ý', val:o.dongy, c:'var(--c-dongy)'},
-    {label:'Gửi Order KSHĐ', val:o.order, c:'var(--c-order)'},
-    {label:'Nhận PL từ KSHĐ', val:o.nhanpl, c:'var(--c-nhanpl)'},
-    {label:'Hoàn thành ký PL', val:o.ky, c:'var(--c-ky)'},
-    {label:'Giảm công nợ', val:o.cn, c:'var(--c-cn)'},
-  ];
-  const max = o.tong || 1;
-  const html = steps.map(s => `
-    <div class="funnel-row">
-      <div class="flabel">${s.label}</div>
-      <div class="fbar-wrap"><div class="fbar" style="width:${(s.val/max*100).toFixed(1)}%;background:${s.c}"></div></div>
-      <div class="fval">${s.val} (${fmtPct(s.val,max)})</div>
-    </div>`).join('');
-  document.getElementById('funnelChart').innerHTML = html;
-}
-
-function renderKhuChart(){
-  const khus = Object.keys(DATA.khu_data).sort();
-  const seriesKeys = ['tong','dongy','order','nhanpl','ky','cn'];
-  const seriesColors = ['#2563eb','#0d9488','#7c3aed','#d97706','#16a34a','#dc2626'];
-  const seriesLabels = ['Tổng','Đồng ý','Order','Nhận PL','Ký PL','Giảm CN'];
-
-  const W = 520, H = 300, padL = 40, padB = 60, padT = 10, padR = 10;
-  const groupW = (W - padL - padR) / khus.length;
-  const barW = groupW / (seriesKeys.length + 1.5);
-  let maxVal = 0;
-  khus.forEach(k => { maxVal = Math.max(maxVal, DATA.khu_data[k].tong); });
-  maxVal = Math.ceil(maxVal / 10) * 10 || 10;
-
-  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">`;
-  // y axis gridlines
-  const nTicks = 5;
-  for(let i=0;i<=nTicks;i++){
-    const y = padT + (H-padT-padB) * (1 - i/nTicks);
-    const val = Math.round(maxVal * i / nTicks);
-    svg += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e5e7eb" stroke-width="1"/>`;
-    svg += `<text x="${padL-6}" y="${y+3}" font-size="9" fill="#6b7280" text-anchor="end">${val}</text>`;
-  }
-  khus.forEach((khu, gi) => {
-    const gx = padL + gi * groupW;
-    const d = DATA.khu_data[khu];
-    seriesKeys.forEach((sk, si) => {
-      const val = d[sk];
-      const bh = (H - padT - padB) * (val / maxVal);
-      const bx = gx + si * barW + barW*0.25;
-      const by = H - padB - bh;
-      svg += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${(barW*0.8).toFixed(1)}" height="${bh.toFixed(1)}" fill="${seriesColors[si]}"><title>${khu} - ${seriesLabels[si]}: ${val}</title></rect>`;
-    });
-    svg += `<text x="${(gx+groupW/2).toFixed(1)}" y="${H-padB+16}" font-size="10" fill="#1f2937" text-anchor="middle">${khu}</text>`;
-  });
-  svg += `</svg>`;
-  // legend
-  let legend = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:11px;">';
-  seriesLabels.forEach((l,i)=>{
-    legend += `<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:${seriesColors[i]};display:inline-block;border-radius:2px;"></span>${l}</span>`;
-  });
-  legend += '</div>';
-  document.getElementById('khuChart').innerHTML = svg + legend;
-}
-
-function renderCbldCards(){
-  const html = DATA.cbld_summary.map(c => `
-    <div class="cbld-card">
-      <div class="name">${c.cbld} ${c.has_issue ? '<span class="badge">ĐANG VƯỚNG</span>' : ''}</div>
-      <div class="khus">Phụ trách: ${c.khu.join(', ')} · ${c.n_cskh} CSKH</div>
-      <div class="cbld-stats">
-        <div><div class="n">${c.tong}</div><div class="l">Tổng GH</div></div>
-        <div><div class="n">${c.dongy}</div><div class="l">Đồng ý (${fmtPct(c.dongy,c.tong)})</div></div>
-        <div><div class="n">${c.ky}</div><div class="l">Ký PL (${fmtPct(c.ky,c.tong)})</div></div>
-        <div><div class="n">${c.cn}</div><div class="l">Giảm CN (${fmtPct(c.cn,c.tong)})</div></div>
-      </div>
-      <div class="progress-bar"><div style="width:${c.tong? (c.ky/c.tong*100):0}%"></div></div>
-    </div>`).join('');
-  document.getElementById('cbldGrid').innerHTML = html;
-}
-
-function renderLowPerformers(){
-  const avgKyTong = DATA.overall_ky_tong;
-  const avgKyDongy = DATA.overall_ky_dongy;
-  const avgDongyTong = DATA.overall_dongy_tong;
-
-  document.getElementById('lowPerfSubtitle').innerHTML =
-    `Xếp theo % Ký/Tổng tăng dần (thấp nhất lên đầu) · Trung bình dự án: % Đồng ý/Tổng ${fmtPct(DATA.overall.dongy,DATA.overall.tong)} · % Ký/Đồng ý ${fmtPct(DATA.overall.ky,DATA.overall.dongy)} · % Ký/Tổng ${fmtPct(DATA.overall.ky,DATA.overall.tong)}. CSKH có % Ký/Tổng thấp hơn trung bình được đánh dấu "Cần chú ý".`;
-
-  const rows = DATA.cskh_rows.slice().sort((a,b)=> a.ky_tong - b.ky_tong);
-  let html = '';
-  rows.forEach((r, i) => {
-    const isLow = r.ky_tong < avgKyTong;
-    const causes = [];
-    if(r.dongy_tong < avgDongyTong - 0.03) causes.push('Nghẽn đàm phán (tỷ lệ Đồng ý thấp)');
-    if(r.ky_dongy < avgKyDongy - 0.03) causes.push('Nghẽn thực thi (đã Đồng ý nhưng chậm ký PL)');
-    const causeStr = causes.length ? causes.join('; ') : (isLow ? 'Thấp hơn trung bình nhẹ' : '—');
-    const rowClass = causes.length >= 2 ? 'low-perf-bad' : (isLow ? 'low-perf-warn' : '');
-    const badge = isLow ? '<span class="eval-badge eval-bad">Cần chú ý</span>' : '<span class="eval-badge eval-ok">Ổn định/Tốt</span>';
-    html += `<tr class="${rowClass}">
-      <td class="left">${i+1}</td>
-      <td class="left">${r.cskh}</td>
-      <td class="left">${r.cbld}</td>
-      <td>${r.tong}</td><td>${r.dongy}</td><td>${r.ky}</td>
-      <td>${fmtPct(r.dongy, r.tong)}</td>
-      <td>${fmtPct(r.ky, r.dongy)}</td>
-      <td>${fmtPct(r.ky, r.tong)}</td>
-      <td class="left">${badge}</td>
-      <td class="left">${causeStr}</td>
-    </tr>`;
-  });
-  document.getElementById('lowPerfTbody').innerHTML = html;
-}
-
-function renderCbldTables(){
-  const container = document.getElementById('cbldTables');
-  container.innerHTML = '';
-  DATA.cbld_summary.forEach((cb) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'panel cbld-table-wrap';
-
-    const stripHtml = cb.khu_strip.map(k => `<span class="khu-chip"><b>${k.khu}</b>: ${k.n_cskh} CSKH · Tổng ${k.tong} · Đồng ý ${k.dongy} · Ký ${k.ky}</span>`).join('');
-
-    const myRows = DATA.cskh_rows.filter(r => r.cbld === cb.cbld);
-
-    const tableId = 'tbl_' + cb.cbld.replace(/\s+/g,'_');
-    const sortKeys = ['khu','cskh','tong','dongy','order','nhanpl','ky','cn','pct'];
-    const sortLabels = {khu:'Khu phố', cskh:'CSKH', tong:'Tổng GH', dongy:'Đồng ý', order:'Order', nhanpl:'Nhận PL', ky:'Ký PL', cn:'Giảm CN', pct:'% Ký'};
-    const thHtml = sortKeys.map(k => `<th class="${k==='khu'||k==='cskh'?'left ':''}sortable" id="${tableId}_th_${k}">${sortLabels[k]} <span class="arrow" id="${tableId}_arrow_${k}"></span></th>`).join('');
-
-    wrap.innerHTML = `
-      <h3>Bảng chi tiết theo CSKH — CBLĐ ${cb.cbld}</h3>
-      <div class="khu-strip">${stripHtml}</div>
-      <table id="${tableId}">
-        <thead>
-          <tr>
-            ${thHtml}
-            <th class="left">Ghi chú</th>
-          </tr>
-        </thead>
-        <tbody id="${tableId}_body"></tbody>
-      </table>
-    `;
-    container.appendChild(wrap);
-
-    // independent sort state via closure
-    let sortKey = 'pct';
-    let sortDir = 1; // 1 asc, -1 desc; for pct/notes default show issues first -> ascending pct
-    const defaultDirFor = (key) => (key === 'pct' ? 1 : -1); // pct ascending (lowest first = biggest problem), counts descending
-    sortDir = defaultDirFor(sortKey);
-
-    function computeRowVal(r, key){
-      if(key === 'khu') return r.khu.join(', ');
-      if(key === 'pct') return r.tong>0 ? r.ky/r.tong : 0;
-      return r[key];
-    }
-
-    function draw(){
-      const rows = myRows.slice();
-      rows.sort((a,b)=>{
-        const va = computeRowVal(a, sortKey), vb = computeRowVal(b, sortKey);
-        if(typeof va === 'string') return va.localeCompare(vb) * sortDir;
-        return (va - vb) * sortDir;
-      });
-      const tbody = document.getElementById(tableId + '_body');
-      let html = '';
-      rows.forEach(r=>{
-        const pct = r.tong>0 ? Math.round(r.ky/r.tong*100) : 0;
-        const issue = r.notes.length > 0;
-        html += `<tr class="${issue?'issue-row':''}">
-          <td class="left">${r.khu.join(', ')}</td>
-          <td class="left">${r.cskh}</td>
-          <td>${r.tong}</td><td>${r.dongy}</td><td>${r.order}</td><td>${r.nhanpl}</td><td>${r.ky}</td><td>${r.cn}</td>
-          <td>${pct}%</td>
-          <td class="left">${r.notes.join('; ')}</td>
-        </tr>`;
-      });
-      // total row
-      const tot = {tong:0,dongy:0,order:0,nhanpl:0,ky:0,cn:0};
-      myRows.forEach(r=>{ tot.tong+=r.tong; tot.dongy+=r.dongy; tot.order+=r.order; tot.nhanpl+=r.nhanpl; tot.ky+=r.ky; tot.cn+=r.cn; });
-      const totPct = tot.tong>0 ? Math.round(tot.ky/tot.tong*100) : 0;
-      html += `<tr class="total-row">
-        <td class="left" colspan="2">Tổng CBLĐ ${cb.cbld}</td>
-        <td>${tot.tong}</td><td>${tot.dongy}</td><td>${tot.order}</td><td>${tot.nhanpl}</td><td>${tot.ky}</td><td>${tot.cn}</td>
-        <td>${totPct}%</td><td></td>
-      </tr>`;
-      tbody.innerHTML = html;
-      // update arrows
-      sortKeys.forEach(k=>{
-        const arrow = document.getElementById(`${tableId}_arrow_${k}`);
-        if(k === sortKey){ arrow.textContent = sortDir === 1 ? '▲' : '▼'; }
-        else { arrow.textContent = ''; }
-      });
-    }
-
-    sortKeys.forEach(k=>{
-      const th = document.getElementById(`${tableId}_th_${k}`);
-      th.addEventListener('click', ()=>{
-        if(sortKey === k){ sortDir *= -1; }
-        else { sortKey = k; sortDir = defaultDirFor(k); }
-        draw();
-      });
-    });
-
-    draw();
-  });
-}
-
-function renderGhSection(){
-  const khus = Array.from(new Set(DATA.gh_list.map(g=>g.khu))).sort();
-  const cskhs = Array.from(new Set(DATA.gh_list.map(g=>g.cskh))).sort();
-  const stages = [0,1,2,3,4,5,6];
-  const stageLabels = {0:'0 - Chưa đồng ý/đang xử lý',1:'1 - Đã đồng ý',2:'2 - Đã ký BBLV',3:'3 - Đã gửi Order KSHĐ',4:'4 - Đã nhận PL từ KSHĐ',5:'5 - Đã hoàn thành ký PL',6:'6 - Đã giảm công nợ - Hoàn thành'};
-
-  const filtersEl = document.getElementById('ghFilters');
-  const khuPillIds = ['ALL', ...khus];
-  let filterHtml = khuPillIds.map((k,i)=> `<span class="pill${i===0?' active':''}" id="pill_${i}" data-khu="${k}">${k==='ALL'?'Tất cả khu':k}</span>`).join('');
-  filterHtml += `<select id="cskhFilter"><option value="ALL">Tất cả CSKH</option>${cskhs.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>`;
-  filterHtml += `<select id="stageFilter"><option value="ALL">Tất cả trạng thái</option>${stages.map(s=>`<option value="${s}">${stageLabels[s]}</option>`).join('')}</select>`;
-  filterHtml += `<input type="text" id="searchBox" placeholder="Tìm mã lô / thương hiệu...">`;
-  filtersEl.innerHTML = filterHtml;
-
-  let state = {khu:'ALL', cskh:'ALL', stage:'ALL', q:''};
-
-  function draw(){
-    const rows = DATA.gh_list.filter(g=>{
-      if(state.khu !== 'ALL' && g.khu !== state.khu) return false;
-      if(state.cskh !== 'ALL' && g.cskh !== state.cskh) return false;
-      if(state.stage !== 'ALL' && String(g.stage) !== state.stage) return false;
-      if(state.q){
-        const q = state.q.toLowerCase();
-        if(!(g.vitri||'').toLowerCase().includes(q) && !(g.brand||'').toLowerCase().includes(q)) return false;
-      }
-      return true;
-    });
-    const tbody = document.getElementById('ghTbody');
-    let html = '';
-    rows.forEach(g=>{
-      const color = STAGE_COLOR_MAP[g.stage];
-      html += `<tr>
-        <td>${g.khu||''}</td>
-        <td>${g.brand||''}</td>
-        <td>${g.vitri||''}</td>
-        <td>${g.cskh||''}</td>
-        <td>${g.cbld||''}</td>
-        <td>${g.ketqua}${g.excluded ? ' <b>(loại: Không xuất PL)</b>' : ''}</td>
-        <td><span class="stage-pill" style="background:${color}">${g.stageLabel}</span></td>
-        <td>${g.note || ''}</td>
-      </tr>`;
-    });
-    tbody.innerHTML = html || '<tr><td colspan="8" style="text-align:center;color:#9ca3af;">Không có gian hàng phù hợp bộ lọc</td></tr>';
-  }
-
-  khuPillIds.forEach((k, i)=>{
-    const p = document.getElementById(`pill_${i}`);
-    p.addEventListener('click', ()=>{
-      khuPillIds.forEach((_, j)=>{ document.getElementById(`pill_${j}`).classList.remove('active'); });
-      p.classList.add('active');
-      state.khu = k;
-      draw();
-    });
-  });
-  document.getElementById('cskhFilter').addEventListener('change', e=>{ state.cskh = e.target.value; draw(); });
-  document.getElementById('stageFilter').addEventListener('change', e=>{ state.stage = e.target.value; draw(); });
-  document.getElementById('searchBox').addEventListener('input', e=>{ state.q = e.target.value; draw(); });
-
-  draw();
-}
-
-renderSubtitle();
-renderKPI();
-renderAlertInfo();
-renderLowPerformers();
-renderFunnel();
-renderKhuChart();
-renderCbldCards();
-renderCbldTables();
-renderGhSection();
+const data = {"source": "PL01_Chi tiet chinh sach HTGG de xuat trien khai (002).xlsx", "updated": "17/08/2026 22:48", "overall": {"tong": 178, "dongy": 165, "order": 160, "nhanpl": 147, "ky": 141, "cn": 123}, "funnel": [["Tổng GH", 178, "#2563eb"], ["Đồng ý", 165, "#0d9488"], ["Order", 160, "#7c3aed"], ["Nhận PL", 147, "#d97706"], ["Ký PL", 141, "#16a34a"], ["Giảm CN", 123, "#dc2626"]], "cbld": [{"tong": 59, "dongy": 53, "order": 47, "nhanpl": 37, "ky": 34, "cn": 18, "name": "CBLĐ 1", "khu": "The Venice"}, {"tong": 119, "dongy": 112, "order": 113, "nhanpl": 110, "ky": 107, "cn": 105, "name": "CBLĐ 2", "khu": "Center Point, K-Town, Little HK"}], "cskh": [{"tong": 55, "dongy": 55, "order": 55, "nhanpl": 55, "ky": 55, "cn": 54, "name": "CSKH 01", "cbld": "CBLĐ 2", "khu": "K-Town"}, {"tong": 15, "dongy": 11, "order": 11, "nhanpl": 11, "ky": 11, "cn": 11, "name": "CSKH 02", "cbld": "CBLĐ 2", "khu": "Little HK"}, {"tong": 7, "dongy": 5, "order": 5, "nhanpl": 5, "ky": 4, "cn": 3, "name": "CSKH 03", "cbld": "CBLĐ 2", "khu": "Center Point"}, {"tong": 32, "dongy": 29, "order": 23, "nhanpl": 20, "ky": 18, "cn": 13, "name": "CSKH 04", "cbld": "CBLĐ 1", "khu": "The Venice"}, {"tong": 19, "dongy": 18, "order": 19, "nhanpl": 16, "ky": 14, "cn": 14, "name": "CSKH 05", "cbld": "CBLĐ 2", "khu": "K-Town"}, {"tong": 23, "dongy": 23, "order": 23, "nhanpl": 23, "ky": 23, "cn": 23, "name": "CSKH 06", "cbld": "CBLĐ 2", "khu": "K-Town"}, {"tong": 16, "dongy": 14, "order": 14, "nhanpl": 9, "ky": 9, "cn": 2, "name": "CSKH 07", "cbld": "CBLĐ 1", "khu": "The Venice"}, {"tong": 11, "dongy": 10, "order": 10, "nhanpl": 8, "ky": 7, "cn": 3, "name": "CSKH 08", "cbld": "CBLĐ 1", "khu": "The Venice"}], "khu": [{"tong": 7, "dongy": 5, "order": 5, "nhanpl": 5, "ky": 4, "cn": 3, "name": "Center Point"}, {"tong": 97, "dongy": 96, "order": 97, "nhanpl": 94, "ky": 92, "cn": 91, "name": "K-Town"}, {"tong": 15, "dongy": 11, "order": 11, "nhanpl": 11, "ky": 11, "cn": 11, "name": "Little HK"}, {"tong": 59, "dongy": 53, "order": 47, "nhanpl": 37, "ky": 34, "cn": 18, "name": "The Venice"}], "issues": [{"group": "Center Point", "status": "Kết quả đàm phán chưa khớp BBLV", "action": "Rà lại 2 dòng đang tick BBLV nhưng chưa “Đồng ý”"}, {"group": "K-Town", "status": "Kết quả đàm phán chưa khớp BBLV", "action": "Rà lại 1 dòng đang tick BBLV nhưng chưa “Đồng ý”"}, {"group": "Little HK", "status": "Kết quả đàm phán chưa khớp BBLV", "action": "Rà lại 4 dòng đang tick BBLV nhưng chưa “Đồng ý”"}]};
+const pct = (a,b) => b ? Math.round(a/b*100)+'%' : '0%';
+document.getElementById('kpis').innerHTML = [
+  ['Tổng GH',data.overall.tong,'var(--blue)',null],
+  ['Đồng ý',data.overall.dongy,'var(--teal)',pct(data.overall.dongy,data.overall.tong)],
+  ['Order',data.overall.order,'var(--violet)',pct(data.overall.order,data.overall.tong)],
+  ['Nhận PL',data.overall.nhanpl,'var(--orange)',pct(data.overall.nhanpl,data.overall.tong)],
+  ['Ký PL',data.overall.ky,'var(--green)',pct(data.overall.ky,data.overall.tong)],
+  ['Giảm CN',data.overall.cn,'var(--red)',pct(data.overall.cn,data.overall.tong)]
+].map(x=>`<div class="card kpi" style="border-top:4px solid ${x[2]}"><div class="v">${x[1]}</div><div class="l">${x[0]}</div>${x[3]?`<div class="p">${x[3]} / tổng</div>`:''}</div>`).join('');
+document.getElementById('bars').innerHTML = data.funnel.map(([l,v,c])=>`<div class="bar"><div>${l}</div><div class="track"><div class="fill" style="width:${(v/data.overall.tong*100).toFixed(1)}%;background:${c}"></div></div><div class="num">${v}</div></div>`).join('');
+const row = r => `<td class="num">${r.tong}</td><td class="num">${r.dongy}</td><td class="num">${r.order}</td><td class="num">${r.nhanpl}</td><td class="num">${r.ky}</td><td class="num">${r.cn}</td><td class="num">${pct(r.ky,r.tong)}</td>`;
+document.getElementById('cbld').innerHTML = data.cbld.map(r=>`<tr><td>${r.name}</td><td>${r.khu}</td>${row(r)}</tr>`).join('');
+document.getElementById('cskh').innerHTML = data.cskh.map(r=>`<tr><td>${r.name}</td><td>${r.cbld}</td><td>${r.khu}</td>${row(r)}</tr>`).join('');
+document.getElementById('khu').innerHTML = data.khu.map(r=>`<tr><td>${r.name}</td>${row(r)}</tr>`).join('');
+document.getElementById('issues').innerHTML = data.issues.map(r=>`<tr><td>${r.group}</td><td><span class="tag">${r.status}</span></td><td>${r.action}</td></tr>`).join('');
 </script>
 </body>
 </html>
